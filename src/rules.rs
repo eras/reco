@@ -122,13 +122,13 @@ impl<'a> Rule for Worm<'a> {
             let cur_xy = self.numpad.xy_of_digit(cur_digit);
             let cur_distance = cur_xy.distance(xy);
             if cur_distance.1 == 0
-                && ((cur_xy.0 == 0 && xy.0 == x_wrap_size)
-                    || (cur_xy.0 == x_wrap_size && xy.0 == 0))
+                && (((cur_xy.0, xy.0) == (0, x_wrap_size))
+                    || ((cur_xy.0, xy.0) == (x_wrap_size, 0)))
             {
                 ()
             } else if cur_distance.0 == 0
-                && ((cur_xy.1 == 0 && xy.1 == y_wrap_size)
-                    || (cur_xy.1 == x_wrap_size && xy.1 == 0))
+                && (((cur_xy.1, xy.1) == (0, y_wrap_size))
+                    || ((cur_xy.1, xy.1) == (x_wrap_size, 0)))
             {
                 ()
             } else {

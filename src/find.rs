@@ -3,10 +3,11 @@ use crate::digits::Digits;
 use crate::numpad::{MajorDir, Numpad};
 use crate::rules::Rule;
 
-#[derive(Copy, Clone, Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct Info {
     pub matches: usize,
     pub total: usize,
+    pub message: String,
 }
 
 pub trait InfoSignal {
@@ -55,6 +56,7 @@ pub fn find<INFO: InfoSignal>(digits: Option<Digits>, info: INFO) {
         }
         rules.push(Box::new(Worm::new(&numpads[2])));
     }
+    let mut message = String::from("");
     loop {
         total += 1;
         let mut matches = vec![];
@@ -83,28 +85,31 @@ pub fn find<INFO: InfoSignal>(digits: Option<Digits>, info: INFO) {
         if !matches.is_empty() || (!matches_a.is_empty() && !matches_b.is_empty()) {
             matching += 1;
 
+            message = String::from("");
+            
             if digits.is_some() {
-                println!("Direct matches for {digits:?}:");
+                message += &format!("Direct matches for {digits:?}:\n");
                 for m in matches {
-                    println!("{m:?}")
+                    message += &format!("{m:?}\n")
                 }
 
-                println!("Split matches a:");
+                message += &format!("Split matches a:\n");
                 for m in matches_a {
-                    println!("{m:?}")
+                    message += &format!("{m:?}\n")
                 }
 
-                println!("Split matches b:");
+                message += &format!("Split matches b:\n");
                 for m in matches_b {
-                    println!("{m:?}")
+                    message += &format!("{m:?}\n")
                 }
 
-                println!("--")
+                message += &format!("--\n")
             }
 
             info.update(Info {
                 total,
                 matches: matching,
+                message: message.clone(),
             });
         }
         seq.incr();
@@ -115,6 +120,7 @@ pub fn find<INFO: InfoSignal>(digits: Option<Digits>, info: INFO) {
     info.update(Info {
         total,
         matches: matching,
+        message: message,
     });
     let ratio = matching as f64 / total as f64 * 100f64;
     println!("total: {} matching: {} {:.2}%", total, matching, ratio);

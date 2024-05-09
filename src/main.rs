@@ -1,5 +1,5 @@
 use clap::{App, Arg};
-use egui::{CentralPanel, Direction, Label, Sense, SidePanel, Ui};
+use egui::{CentralPanel, Direction, Label, ScrollArea, Sense, SidePanel, Ui};
 
 mod digit;
 mod digits;
@@ -42,15 +42,16 @@ impl ReCoApp {
         }
     }
 
-    fn start(reco_info: Arc<Mutex<find::Info>>,
-             digits_input: String) -> std::thread::JoinHandle<()> {
+    fn start(
+        reco_info: Arc<Mutex<find::Info>>,
+        digits_input: String,
+    ) -> std::thread::JoinHandle<()> {
         let info_to_app = InfoToApp::new(reco_info);
-        let digits =
-            if digits_input.is_empty() {
-                None
-            } else {
-                Some(Digits::from(&find::parse_digits(&digits_input)[..]))
-            };
+        let digits = if digits_input.is_empty() {
+            None
+        } else {
+            Some(Digits::from(&find::parse_digits(&digits_input)[..]))
+        };
         let thread = std::thread::spawn(move || {
             find::find(digits, info_to_app);
         });
@@ -91,14 +92,27 @@ impl eframe::App for ReCoApp {
             ui.horizontal(|ui| {
                 if ui.button("Calculate").clicked() {
                     let mut reco_info = self.reco_info.lock().unwrap();
-                    reco_info.thread = Some(Self::start(reco_info.reco_info.clone(),
-                                                        self.digits_input.clone()));
+                    reco_info.thread = Some(Self::start(
+                        reco_info.reco_info.clone(),
+                        self.digits_input.clone(),
+                    ));
                 }
                 if ui.button("Reset").clicked() {
                     // Reset input and results
                     // (code to reset state and results)
                 }
             });
+
+            {
+                let info = self.reco_info.lock().unwrap();
+                let info = info.reco_info.lock().unwrap();
+
+                let long_text = &info.message;
+
+                ScrollArea::vertical().show(ui, |ui| {
+                    ui.label(long_text);
+                });
+            }
         });
     }
 }

@@ -2,7 +2,16 @@ use crate::digit::Digit;
 use crate::digits::Digits;
 use crate::numpad::Numpad;
 
-pub struct MatchInfo {}
+pub struct MatchInfo {
+    message: String,
+}
+
+impl std::fmt::Debug for MatchInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "{}", self.message)?;
+        Ok(())
+    }
+}
 
 use regex;
 
@@ -11,6 +20,8 @@ pub trait Rule {
 
     fn name(&self) -> &str;
 }
+
+
 
 pub struct Incrementing;
 
@@ -26,7 +37,7 @@ impl Rule for Incrementing {
             }
             prev_digit = cur_digit
         }
-        Some(MatchInfo {})
+        Some(MatchInfo { message: format!("Incrementing") })
     }
 
     fn name(&self) -> &str {
@@ -79,7 +90,7 @@ impl Regex {
 impl Rule for Regex {
     fn matches(&self, seq: &Digits) -> Option<MatchInfo> {
         if self.re.is_match(&seq.str) {
-            Some(MatchInfo {})
+            Some(MatchInfo { message: format!("Regex") })
         } else {
             None
         }
@@ -127,7 +138,7 @@ impl<'a> Rule for Worm<'a> {
             }
             xy = cur_xy;
         }
-        Some(MatchInfo {})
+        Some(MatchInfo { message: format!("Worm for\n{0:?}", self.numpad) })
     }
 
     fn name(&self) -> &str {
@@ -158,7 +169,7 @@ impl<'a> Rule for DiagWorm<'a> {
             }
             xy = cur_xy;
         }
-        Some(MatchInfo {})
+        Some(MatchInfo { message: format!("DiagWorm for\n{0:?}", self.numpad) })
     }
 
     fn name(&self) -> &str {

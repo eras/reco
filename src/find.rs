@@ -3,7 +3,7 @@ use crate::digits::Digits;
 use crate::numpad::{MajorDir, Numpad};
 use crate::rules::Rule;
 
-#[derive(Copy, Clone, Default,Debug)]
+#[derive(Copy, Clone, Default, Debug)]
 pub struct Info {
     pub matches: usize,
     pub total: usize,
@@ -36,12 +36,10 @@ pub fn find<INFO: InfoSignal>(digits: Option<Digits>, info: INFO) {
     numpads.push(Numpad::new(MajorDir::YMajor, 3));
     numpads.push(Numpad::new(MajorDir::YMajor, 5));
 
-    let (init, iterate) =
-        match digits {
-            Some(digits) => 
-                (digits, false),
-            None => (Digits::zero(), true)
-        };
+    let (init, iterate) = match &digits {
+        Some(digits) => (digits.clone(), false),
+        None => (Digits::zero(), true),
+    };
 
     let mut seq = init.clone();
     let mut total = 0usize;
@@ -59,43 +57,65 @@ pub fn find<INFO: InfoSignal>(digits: Option<Digits>, info: INFO) {
     }
     loop {
         total += 1;
-        let mut matches = false;
-        let mut matches_a = false;
-        let mut matches_b = false;
+        let mut matches = vec![];
+        let mut matches_a = vec![];
+        let mut matches_b = vec![];
         let (a, b) = seq.split(3);
         for rule in &rules {
             match rule.matches(&seq) {
-                Some(_match_info) => {
-                    matches = true;
-                }
+                Some(match_info) => matches.push(match_info),
                 None => (),
             }
             match rule.matches(&a) {
-                Some(_match_info) => {
-                    matches_a = true;
-                }
+                Some(_match_info) => matches_a.push(_match_info),
+
                 None => (),
             }
             match rule.matches(&b) {
-                Some(_match_info) => {
-                    matches_b = true;
-                }
+                Some(_match_info) => matches_b.push(_match_info),
+
                 None => (),
             }
-            if matches || (matches_a && matches_b) {
+            if !matches.is_empty() || (!matches_a.is_empty() && !matches_b.is_empty()) {
                 break;
             }
         }
-        if matches || (matches_a && matches_b) {
+        if !matches.is_empty() || (!matches_a.is_empty() && !matches_b.is_empty()) {
             matching += 1;
-            info.update(Info { total, matches: matching });
+
+            if digits.is_some() {
+                println!("Direct matches for {digits:?}:");
+                for m in matches {
+                    println!("{m:?}")
+                }
+
+                println!("Split matches a:");
+                for m in matches_a {
+                    println!("{m:?}")
+                }
+
+                println!("Split matches b:");
+                for m in matches_b {
+                    println!("{m:?}")
+                }
+
+                println!("--")
+            }
+
+            info.update(Info {
+                total,
+                matches: matching,
+            });
         }
         seq.incr();
         if seq == init || !iterate {
             break;
         }
     }
-    info.update(Info { total, matches: matching });
+    info.update(Info {
+        total,
+        matches: matching,
+    });
     let ratio = matching as f64 / total as f64 * 100f64;
     println!("total: {} matching: {} {:.2}%", total, matching, ratio);
 }

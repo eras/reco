@@ -8,6 +8,8 @@ use regex;
 
 pub trait Rule {
     fn matches(&self, seq: &Digits) -> Option<MatchInfo>;
+
+    fn name(&self) -> &str;
 }
 
 pub struct Incrementing;
@@ -26,9 +28,26 @@ impl Rule for Incrementing {
         }
         Some(MatchInfo {})
     }
+
+    fn name(&self) -> &str {
+        "Incrementing"
+    }
 }
 
-pub struct Reverse(Box<dyn Rule>);
+pub struct Reverse{
+    rule: Box<dyn Rule>,
+    name: String,
+}
+
+impl Reverse {
+    pub fn new(rule: Box<dyn Rule>) -> Self {
+        let name = format!("Reverse of {}", rule.name());
+        Reverse {
+            rule,
+            name,
+        }
+    }
+}
 
 impl Rule for Reverse {
     fn matches(&self, digits: &Digits) -> Option<MatchInfo> {
@@ -36,25 +55,38 @@ impl Rule for Reverse {
         for c in 0..digits.len() {
             rev_seq[c] = digits.digits()[digits.len() - c - 1];
         }
-        self.0.matches(&Digits::from(&rev_seq[..]))
+        self.rule.matches(&Digits::from(&rev_seq[..]))
+    }
+
+    fn name(&self) -> &str {
+        &self.name
     }
 }
 
-pub struct Regex(regex::Regex);
+pub struct Regex{
+    re: regex::Regex,
+    name: String,
+}
 
 impl Regex {
     pub fn new(re: &str) -> Self {
-        Regex(regex::Regex::new(re).unwrap())
+        let re = regex::Regex::new(re).unwrap();
+        let name = format!("Regex {re}");
+        Regex{ re, name }
     }
 }
 
 impl Rule for Regex {
     fn matches(&self, seq: &Digits) -> Option<MatchInfo> {
-        if self.0.is_match(&seq.str) {
+        if self.re.is_match(&seq.str) {
             Some(MatchInfo {})
         } else {
             None
         }
+    }
+
+    fn name(&self) -> &str {
+        &self.name
     }
 }
 
@@ -97,6 +129,10 @@ impl<'a> Rule for Worm<'a> {
         }
         Some(MatchInfo {})
     }
+
+    fn name(&self) -> &str {
+        "Worm"
+    }
 }
 
 pub struct DiagWorm<'a> {
@@ -124,5 +160,8 @@ impl<'a> Rule for DiagWorm<'a> {
         }
         Some(MatchInfo {})
     }
-}
 
+    fn name(&self) -> &str {
+        "DiagWorm"
+    }
+}

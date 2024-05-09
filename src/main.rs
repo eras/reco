@@ -1,13 +1,13 @@
 mod digit;
 mod digits;
-mod rules;
 mod numpad;
+mod rules;
 
 use clap::{App, Arg};
 
 use crate::digit::Digit;
 use crate::digits::Digits;
-use crate::numpad::{Numpad, MajorDir};
+use crate::numpad::{MajorDir, Numpad};
 use crate::rules::Rule;
 
 fn main() {
@@ -60,7 +60,7 @@ fn main() {
         let mut matches = false;
         let mut matches_a = false;
         let mut matches_b = false;
-        let (a, b) = seq.split_in_half();
+        let (a, b) = seq.split(3);
         for rule in &rules {
             match rule.matches(&seq) {
                 Some(_match_info) => {
@@ -80,8 +80,12 @@ fn main() {
                 }
                 None => (),
             }
+            if matches || (matches_a && matches_b) {
+                break;
+            }
         }
-        if matches || (matches_a && matches_b) {
+        if matches || (matches_a && matches_b)
+        {
             //println!("{seq:?}");
             matching += 1;
         } else {
@@ -98,7 +102,7 @@ fn main() {
 
 fn parse_digits(s: &str) -> Vec<Digit> {
     let mut digits = vec![];
-    for (i, c) in s.chars().enumerate() {
+    for (_i, c) in s.chars().enumerate() {
         if let Some(d) = c.to_digit(10) {
             digits.push(Digit(d as u8));
         } else {

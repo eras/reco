@@ -53,10 +53,10 @@ impl Digits {
         self.digits.len()
     }
 
-    pub fn split_in_half(&self) -> (Digits, Digits) {
+    pub fn split(&self, pos: usize) -> (Digits, Digits) {
         (
-            Digits::from(&self.digits[0..self.digits.len() / 2]),
-            Digits::from(&self.digits[self.digits.len() / 2..self.digits.len()]),
+            Digits::from(&self.digits[0..pos]),
+            Digits::from(&self.digits[pos..self.digits.len()]),
         )
     }
 }

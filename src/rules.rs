@@ -27,10 +27,11 @@ pub struct Incrementing;
 
 impl Rule for Incrementing {
     fn matches(&self, digits: &Digits) -> Option<MatchInfo> {
-        let mut prev_digit = digits.digits()[0];
-        let diff = digits.digits()[1].sub(digits.digits()[0]);
+        let digits = digits.digits();
+        let mut prev_digit = digits[0];
+        let diff = digits[1].sub(digits[0]);
         for c in 1..digits.len() {
-            let cur_digit = digits.digits()[c];
+            let cur_digit = digits[c];
             let cur_diff = cur_digit.sub(prev_digit);
             if cur_diff != diff {
                 return None;

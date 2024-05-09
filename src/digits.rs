@@ -1,6 +1,6 @@
 use crate::digit::Digit;
 
-const NUM_DIGITS: usize = 6;
+const NUM_DIGITS: usize = 5;
 
 #[derive(Clone, PartialEq)]
 pub struct Digits {

@@ -18,6 +18,7 @@ struct ReCoInfo2 {
 struct ReCoApp {
     pixels_per_point: Option<f32>,
     reco_info: Arc<Mutex<ReCoInfo2>>,
+    digits_input: String,
 }
 
 impl ReCoApp {
@@ -37,13 +38,21 @@ impl ReCoApp {
         Self {
             reco_info,
             pixels_per_point: None,
+            digits_input: String::from(""),
         }
     }
 
-    fn start(reco_info: Arc<Mutex<find::Info>>) -> std::thread::JoinHandle<()> {
+    fn start(reco_info: Arc<Mutex<find::Info>>,
+             digits_input: String) -> std::thread::JoinHandle<()> {
         let info_to_app = InfoToApp::new(reco_info);
+        let digits =
+            if digits_input.is_empty() {
+                None
+            } else {
+                Some(Digits::from(&find::parse_digits(&digits_input)[..]))
+            };
         let thread = std::thread::spawn(move || {
-            find::find(None, info_to_app);
+            find::find(digits, info_to_app);
         });
         thread
     }
@@ -72,17 +81,18 @@ impl eframe::App for ReCoApp {
                 let ratio = info.matches as f64 / info.total as f64 * 100.0;
                 ui.label(format!("Ratio: {:.2}%", ratio));
             }
-            // // Display digits input field
-            // ui.horizontal(|ui| {
-            //     ui.label("Digits:");
-            //     ui.text_edit_singleline(&mut state.digits_input);
-            // });
+            // Display digits input field
+            ui.horizontal(|ui| {
+                ui.label("Digits:");
+                ui.text_edit_singleline(&mut self.digits_input);
+            });
 
             // Display buttons to perform actions
             ui.horizontal(|ui| {
                 if ui.button("Calculate").clicked() {
                     let mut reco_info = self.reco_info.lock().unwrap();
-                    reco_info.thread = Some(Self::start(reco_info.reco_info.clone()));
+                    reco_info.thread = Some(Self::start(reco_info.reco_info.clone(),
+                                                        self.digits_input.clone()));
                 }
                 if ui.button("Reset").clicked() {
                     // Reset input and results

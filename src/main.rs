@@ -8,6 +8,7 @@ mod numpad;
 mod rules;
 
 use digits::Digits;
+use std::cell::RefCell;
 use std::sync::{Arc, Mutex};
 
 struct AppMutState {
@@ -17,7 +18,7 @@ struct AppMutState {
 
 struct ReCoApp {
     pixels_per_point: Option<f32>,
-    mut_state: Arc<Mutex<AppMutState>>,
+    mut_state: RefCell<AppMutState>,
     digits_input: String,
 }
 
@@ -25,10 +26,10 @@ impl ReCoApp {
     fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let reco_info = Arc::new(Mutex::new(Default::default()));
 
-        let reco_info = Arc::new(Mutex::new(AppMutState {
+        let reco_info = RefCell::new(AppMutState {
             reco_info,
             thread: None,
-        }));
+        });
 
         // Customize egui here with cc.egui_ctx.set_fonts and cc.egui_ctx.set_visuals.
         // Restore app state using cc.storage (requires the "persistence" feature).
@@ -74,7 +75,7 @@ impl eframe::App for ReCoApp {
             ui.heading("Remember Code");
 
             {
-                let info = self.mut_state.lock().unwrap();
+                let info = self.mut_state.borrow();
                 let info = info.reco_info.lock().unwrap();
                 // // Display total and matching counts
                 ui.label(format!("Total: {}", info.total));
@@ -91,7 +92,7 @@ impl eframe::App for ReCoApp {
             // Display buttons to perform actions
             ui.horizontal(|ui| {
                 if ui.button("Calculate").clicked() {
-                    let mut reco_info = self.mut_state.lock().unwrap();
+                    let mut reco_info = self.mut_state.borrow_mut();
                     reco_info.thread = Some(Self::start(
                         reco_info.reco_info.clone(),
                         self.digits_input.clone(),
@@ -104,7 +105,7 @@ impl eframe::App for ReCoApp {
             });
 
             {
-                let info = self.mut_state.lock().unwrap();
+                let info = self.mut_state.borrow();
                 let info = info.reco_info.lock().unwrap();
 
                 let long_text = &info.message;

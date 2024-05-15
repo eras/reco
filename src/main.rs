@@ -10,14 +10,14 @@ mod rules;
 use digits::Digits;
 use std::sync::{Arc, Mutex};
 
-struct ReCoInfo2 {
+struct AppMutState {
     reco_info: Arc<Mutex<find::Info>>,
     thread: Option<std::thread::JoinHandle<()>>,
 }
 
 struct ReCoApp {
     pixels_per_point: Option<f32>,
-    reco_info: Arc<Mutex<ReCoInfo2>>,
+    mut_state: Arc<Mutex<AppMutState>>,
     digits_input: String,
 }
 
@@ -25,7 +25,7 @@ impl ReCoApp {
     fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let reco_info = Arc::new(Mutex::new(Default::default()));
 
-        let reco_info = Arc::new(Mutex::new(ReCoInfo2 {
+        let reco_info = Arc::new(Mutex::new(AppMutState {
             reco_info,
             thread: None,
         }));
@@ -36,7 +36,7 @@ impl ReCoApp {
         // for e.g. egui::PaintCallback.
 
         Self {
-            reco_info,
+            mut_state: reco_info,
             pixels_per_point: None,
             digits_input: String::from(""),
         }
@@ -74,7 +74,7 @@ impl eframe::App for ReCoApp {
             ui.heading("Remember Code");
 
             {
-                let info = self.reco_info.lock().unwrap();
+                let info = self.mut_state.lock().unwrap();
                 let info = info.reco_info.lock().unwrap();
                 // // Display total and matching counts
                 ui.label(format!("Total: {}", info.total));
@@ -91,7 +91,7 @@ impl eframe::App for ReCoApp {
             // Display buttons to perform actions
             ui.horizontal(|ui| {
                 if ui.button("Calculate").clicked() {
-                    let mut reco_info = self.reco_info.lock().unwrap();
+                    let mut reco_info = self.mut_state.lock().unwrap();
                     reco_info.thread = Some(Self::start(
                         reco_info.reco_info.clone(),
                         self.digits_input.clone(),
@@ -104,7 +104,7 @@ impl eframe::App for ReCoApp {
             });
 
             {
-                let info = self.reco_info.lock().unwrap();
+                let info = self.mut_state.lock().unwrap();
                 let info = info.reco_info.lock().unwrap();
 
                 let long_text = &info.message;

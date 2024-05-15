@@ -21,11 +21,9 @@ pub trait Rule {
     fn name(&self) -> &str;
 }
 
+pub struct Arithmetic;
 
-
-pub struct Incrementing;
-
-impl Rule for Incrementing {
+impl Rule for Arithmetic {
     fn matches(&self, digits: &Digits) -> Option<MatchInfo> {
         let digits = digits.digits();
         let mut prev_digit = digits[0];
@@ -38,7 +36,9 @@ impl Rule for Incrementing {
             }
             prev_digit = cur_digit
         }
-        Some(MatchInfo { message: format!("Incrementing") })
+        Some(MatchInfo {
+            message: format!("Arithmetic (value {})", diff.0),
+        })
     }
 
     fn name(&self) -> &str {
@@ -46,7 +46,7 @@ impl Rule for Incrementing {
     }
 }
 
-pub struct Reverse{
+pub struct Reverse {
     rule: Box<dyn Rule>,
     name: String,
 }
@@ -54,10 +54,7 @@ pub struct Reverse{
 impl Reverse {
     pub fn new(rule: Box<dyn Rule>) -> Self {
         let name = format!("Reverse of {}", rule.name());
-        Reverse {
-            rule,
-            name,
-        }
+        Reverse { rule, name }
     }
 }
 
@@ -75,7 +72,7 @@ impl Rule for Reverse {
     }
 }
 
-pub struct Regex{
+pub struct Regex {
     re: regex::Regex,
     name: String,
 }
@@ -84,14 +81,16 @@ impl Regex {
     pub fn new(re: &str) -> Self {
         let re = regex::Regex::new(re).unwrap();
         let name = format!("Regex {re}");
-        Regex{ re, name }
+        Regex { re, name }
     }
 }
 
 impl Rule for Regex {
     fn matches(&self, seq: &Digits) -> Option<MatchInfo> {
         if self.re.is_match(&seq.str) {
-            Some(MatchInfo { message: format!("Regex") })
+            Some(MatchInfo {
+                message: format!("Regex"),
+            })
         } else {
             None
         }
@@ -139,7 +138,9 @@ impl<'a> Rule for Worm<'a> {
             }
             xy = cur_xy;
         }
-        Some(MatchInfo { message: format!("Worm for\n{0:?}", self.numpad) })
+        Some(MatchInfo {
+            message: format!("Worm for\n{0:?}", self.numpad),
+        })
     }
 
     fn name(&self) -> &str {
@@ -170,7 +171,9 @@ impl<'a> Rule for DiagWorm<'a> {
             }
             xy = cur_xy;
         }
-        Some(MatchInfo { message: format!("DiagWorm for\n{0:?}", self.numpad) })
+        Some(MatchInfo {
+            message: format!("DiagWorm for\n{0:?}", self.numpad),
+        })
     }
 
     fn name(&self) -> &str {

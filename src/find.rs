@@ -48,7 +48,7 @@ pub fn find<INFO: InfoSignal>(digits: Option<Digits>, info: INFO) {
     let mut rules: Vec<Box<dyn Rule>> = Vec::new();
     {
         use crate::rules::*;
-        rules.push(Box::new(Incrementing));
+        rules.push(Box::new(Arithmetic));
 
         for numpad in &numpads {
             rules.push(Box::new(Worm::new(numpad)));
@@ -86,7 +86,7 @@ pub fn find<INFO: InfoSignal>(digits: Option<Digits>, info: INFO) {
             matching += 1;
 
             message = String::from("");
-            
+
             if digits.is_some() {
                 message += &format!("Direct matches for {digits:?}:\n");
                 for m in matches {

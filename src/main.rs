@@ -1,6 +1,3 @@
-use clap::{App, Arg};
-use egui::{CentralPanel, Direction, Label, ScrollArea, Sense, SidePanel, Ui};
-
 mod digit;
 mod digits;
 mod find;
@@ -110,7 +107,7 @@ impl eframe::App for ReCoApp {
 
                 let long_text = &info.message;
 
-                ScrollArea::vertical().show(ui, |ui| {
+                egui::ScrollArea::vertical().show(ui, |ui| {
                     ui.label(long_text);
                 });
             }

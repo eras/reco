@@ -16,3 +16,13 @@ You can find the rules supported from [src/rules.rs](src/rules.rs). They basical
 
 Most all number pad shapes are considered for the rules involving one.
 
+# Installing
+
+* [Install Rust](https://rustup.rs/)
+* cargo install --git https://github.com/eras/reco
+
+# Running
+
+```
+% reco
+```

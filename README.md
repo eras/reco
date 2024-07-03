@@ -26,3 +26,5 @@ Most all number pad shapes are considered for the rules involving one.
 ```
 % reco
 ```
+
+Click `Calculate` to run all 6-digit sequences and produce statistics. To check a particular sequence, enter it to the field prior to clicking the button.

@@ -78,9 +78,6 @@ pub fn find<INFO: InfoSignal>(digits: Option<Digits>, info: INFO) {
 
                 None => (),
             }
-            if !matches.is_empty() || (!matches_a.is_empty() && !matches_b.is_empty()) {
-                break;
-            }
         }
         if !matches.is_empty() || (!matches_a.is_empty() && !matches_b.is_empty()) {
             matching += 1;

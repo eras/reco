@@ -10,7 +10,7 @@ The default function is to find out how many sequences in total match any of the
 
 You can find the rules supported from [src/rules.rs](src/rules.rs). They basically boil down to:
 
-- a seqeunce made from adjacent digits in the main directions ("worm") skipping 0 or 1 digits, with wrap around from the number pad edges
+- a sequence made from adjacent digits in the main directions ("worm") skipping 0 or 1 digits, with wrap around from the number pad edges
 - a sequence made from adjacent digits in the diagonal axis ("diagonal worm") in a number pad
 - a sequence that follows an arithmetic sequence, e.g. 1, 2, 3 or 4, 6, 7
 
